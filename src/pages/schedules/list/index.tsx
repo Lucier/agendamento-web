@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
-import { useSchedules } from '../../../hooks/schedule.hook'
 import { api } from '../../../api/api'
+import { useSchedules } from '../../../hooks/useSchedule.hook'
 
 export default function ScheduleList() {
   const { data, refetch } = useSchedules() // refetch para atualizar após exclusão

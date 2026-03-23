@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { useAppointments } from '../../../hooks/appointments.hook'
+import { useAppointments } from '../../../hooks/useAppointments.hook'
 
 export function AppointmentList() {
   const navigate = useNavigate()

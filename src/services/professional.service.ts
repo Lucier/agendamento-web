@@ -7,4 +7,16 @@ export const professionalService = {
 
     return data
   },
+
+  async create(name: string) {
+    return api.post('/professionals', { name })
+  },
+
+  async update(id: string, name: string) {
+    return api.patch(`/professionals/${id}`, { name })
+  },
+
+  async delete(id: string) {
+    return api.delete(`/professionals/${id}`)
+  },
 }

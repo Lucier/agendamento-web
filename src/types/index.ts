@@ -42,3 +42,14 @@ export type Appointment = {
     time: string
   }
 }
+
+export type Specialty = {
+  id: string
+  name: string
+}
+
+export type Patient = {
+  id: string
+  name: string
+  sus_card: string
+}

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
 import { api } from '../../../api/api'
-import { useAppointments } from '../../../hooks/appointments.hook'
+import { useAppointments } from '../../../hooks/useAppointments.hook'
 import {
   type CreateAppointmentDTO,
   createAppointmentSchema,
@@ -96,6 +96,8 @@ export function AppointmentForm() {
         await createAppointmentMutation.mutateAsync(payload)
         alert('Agendamento criado com sucesso! ✅')
       }
+
+      reset()
 
       navigate('/appointments')
     } catch (error: any) {

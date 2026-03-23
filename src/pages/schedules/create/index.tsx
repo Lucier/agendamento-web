@@ -1,7 +1,7 @@
-import { useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+import { useNavigate, useParams } from 'react-router-dom'
 
 import {
   type CreateScheduleFormData,
@@ -9,7 +9,7 @@ import {
 } from '../../../schemas/schedule.schema'
 
 import { api } from '../../../api/api'
-import { useProfessionals } from '../../../hooks/professional.hook'
+import { useProfessionals } from '../../../hooks/useProfessional.hook'
 
 export function ScheduleForm() {
   const navigate = useNavigate()
