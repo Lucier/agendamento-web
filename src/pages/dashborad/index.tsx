@@ -1,35 +1,80 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../api/api'
 
-type DashboardData = {
-  appointments: number
-  professionals: number
-  patients: number
+type Appointment = {
+  id: string
+  date: string
+  patient?: { name: string }
+  professional?: { name: string }
 }
 
 export function Dashboard() {
-  const [data, setData] = useState<DashboardData>({
+  const [stats, setStats] = useState({
     appointments: 0,
     professionals: 0,
     patients: 0,
   })
 
+  const [todayAppointments, setTodayAppointments] = useState<Appointment[]>([])
+  const [nextAppointments, setNextAppointments] = useState<Appointment[]>([])
+  const [weekStats, setWeekStats] = useState<Record<string, number>>({})
+
   useEffect(() => {
     async function loadData() {
       try {
-        const [appointments, professionals, patients] = await Promise.all([
-          api.get('/appointments'),
-          api.get('/professionals'),
-          api.get('/patients'),
-        ])
+        const [appointmentsRes, professionalsRes, patientsRes] =
+          await Promise.all([
+            api.get('/appointments'),
+            api.get('/professionals'),
+            api.get('/patients'),
+          ])
 
-        setData({
-          appointments: appointments.data.length,
-          professionals: professionals.data.length,
-          patients: patients.data.length,
+        const appointments = appointmentsRes.data
+
+        const today = new Date().toISOString().split('T')[0]
+
+        const todayList = appointments.filter(
+          (a: Appointment) => a.date?.split('T')[0] === today,
+        )
+
+        // próximos 5
+        const now = new Date()
+        const next = appointments
+          .filter((a: Appointment) => new Date(a.date) > now)
+          .sort(
+            (a: Appointment, b: Appointment) =>
+              new Date(a.date).getTime() - new Date(b.date).getTime(),
+          )
+          .slice(0, 5)
+
+        // estatística semanal
+        const week: Record<string, number> = {
+          Dom: 0,
+          Seg: 0,
+          Ter: 0,
+          Qua: 0,
+          Qui: 0,
+          Sex: 0,
+          Sáb: 0,
+        }
+
+        appointments.forEach((a: Appointment) => {
+          const day = new Date(a.date).getDay()
+          const map = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
+          week[map[day]]++
         })
+
+        setStats({
+          appointments: appointments.length,
+          professionals: professionalsRes.data.length,
+          patients: patientsRes.data.length,
+        })
+
+        setTodayAppointments(todayList)
+        setNextAppointments(next)
+        setWeekStats(week)
       } catch (error) {
-        console.error('Erro ao carregar dashboard', error)
+        console.error('Erro dashboard', error)
       }
     }
 
@@ -37,42 +82,115 @@ export function Dashboard() {
   }, [])
 
   return (
-    <div style={styles.container}>
+    <div style={{ padding: 20 }}>
       <h1>Dashboard</h1>
 
-      <div style={styles.cards}>
-        <div style={styles.card}>
-          <h3>Agendamentos</h3>
-          <strong>{data.appointments}</strong>
-        </div>
-
-        <div style={styles.card}>
-          <h3>Profissionais</h3>
-          <strong>{data.professionals}</strong>
-        </div>
-
-        <div style={styles.card}>
-          <h3>Pacientes</h3>
-          <strong>{data.patients}</strong>
-        </div>
+      {/* CARDS */}
+      <div style={{ display: 'flex', gap: 20 }}>
+        <Card title="Agendamentos" value={stats.appointments} />
+        <Card title="Profissionais" value={stats.professionals} />
+        <Card title="Pacientes" value={stats.patients} />
+        <Card title="Hoje" value={todayAppointments.length} />
       </div>
+
+      {/* AGENDAMENTOS HOJE */}
+      <Section title="Agendamentos de Hoje">
+        {todayAppointments.length === 0 ? (
+          <p>Sem agendamentos hoje</p>
+        ) : (
+          <Table data={todayAppointments} />
+        )}
+      </Section>
+
+      {/* PRÓXIMOS */}
+      <Section title="Próximos 5 atendimentos">
+        <Table data={nextAppointments} />
+      </Section>
+
+      {/* GRAFICO SEMANAL */}
+      <Section title="Agendamentos da semana">
+        <div style={{ display: 'flex', gap: 10 }}>
+          {Object.entries(weekStats).map(([day, value]) => (
+            <div key={day}>
+              <div
+                style={{
+                  height: value * 10,
+                  width: 30,
+                  background: '#3b82f6',
+                }}
+              />
+              <small>{day}</small>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      {/* ALERTA */}
+      {todayAppointments.length < 5 && (
+        <div
+          style={{
+            marginTop: 20,
+            padding: 15,
+            background: '#fef3c7',
+            borderRadius: 6,
+          }}
+        >
+          ⚠️ Muitos horários livres hoje
+        </div>
+      )}
     </div>
   )
 }
 
-const styles = {
-  container: {
-    padding: '20px',
-  },
-  cards: {
-    display: 'flex',
-    gap: '20px',
-    marginTop: '20px',
-  },
-  card: {
-    background: '#f3f4f6',
-    padding: '20px',
-    borderRadius: '8px',
-    minWidth: '200px',
-  },
+function Card({ title, value }: any) {
+  return (
+    <div
+      style={{
+        background: '#f3f4f6',
+        padding: 20,
+        borderRadius: 8,
+        minWidth: 150,
+      }}
+    >
+      <h4>{title}</h4>
+      <strong style={{ fontSize: 24 }}>{value}</strong>
+    </div>
+  )
+}
+
+function Section({ title, children }: any) {
+  return (
+    <div style={{ marginTop: 30 }}>
+      <h2>{title}</h2>
+      {children}
+    </div>
+  )
+}
+
+function Table({ data }: { data: Appointment[] }) {
+  return (
+    <table width="100%">
+      <thead>
+        <tr>
+          <th>Hora</th>
+          <th>Paciente</th>
+          <th>Profissional</th>
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((a) => (
+          <tr key={a.id}>
+            <td>
+              {new Date(a.date).toLocaleTimeString('pt-BR', {
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+            </td>
+            <td>{a.patient?.name}</td>
+            <td>{a.professional?.name}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )
 }
