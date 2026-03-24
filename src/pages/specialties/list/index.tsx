@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useSpecialties } from '../../../hooks/useSpecialties'
+import { useSpecialties } from '../../../hooks/useSpecialties.hook'
 
 export default function SpecialtyList() {
   const { data, isLoading, deleteSpecialty } = useSpecialties()

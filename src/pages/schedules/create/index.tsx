@@ -2,14 +2,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
-
-import {
-  type CreateScheduleFormData,
-  createScheduleSchema,
-} from '../../../schemas/schedule.schema'
-
 import { api } from '../../../api/api'
 import { useProfessionals } from '../../../hooks/useProfessional.hook'
+import {
+  createScheduleSchema,
+  type CreateScheduleFormData,
+} from '../../../schemas/schedule.schema'
 
 export function ScheduleForm() {
   const navigate = useNavigate()

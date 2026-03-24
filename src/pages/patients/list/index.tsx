@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { usePatients } from '../../../hooks/usePatients'
+import { usePatients } from '../../../hooks/usePatients.hook'
 
 export default function PatientList() {
   const { data, isLoading, deletePatient } = usePatients()

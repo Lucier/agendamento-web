@@ -1,6 +1,8 @@
 import { createBrowserRouter } from 'react-router-dom'
+import { PrivateRoute } from '../components/PrivateRoute'
 import { AppointmentForm } from '../pages/appointments/create'
 import { AppointmentList } from '../pages/appointments/list'
+import { LoginForm } from '../pages/login/LoginForm'
 import PatientForm from '../pages/patients/create'
 import PatientList from '../pages/patients/list'
 import ProfessionalForm from '../pages/professionals/create'
@@ -12,16 +14,32 @@ import SpecialtyList from '../pages/specialties/list'
 
 export const router = createBrowserRouter([
   {
+    path: '/',
+    element: <LoginForm />,
+  },
+  {
     path: '/schedules/new',
-    element: <ScheduleForm />,
+    element: (
+      <PrivateRoute>
+        <ScheduleForm />
+      </PrivateRoute>
+    ),
   },
   {
     path: '/schedules',
-    element: <ScheduleList />,
+    element: (
+      <PrivateRoute>
+        <ScheduleList />
+      </PrivateRoute>
+    ),
   },
   {
     path: '/schedules/edit/:id',
-    element: <ScheduleForm />,
+    element: (
+      <PrivateRoute>
+        <ScheduleForm />
+      </PrivateRoute>
+    ),
   },
   {
     path: '/appointments/new',
@@ -33,35 +51,67 @@ export const router = createBrowserRouter([
   },
   {
     path: '/appointments/:id',
-    element: <AppointmentForm />,
+    element: (
+      <PrivateRoute>
+        <AppointmentForm />
+      </PrivateRoute>
+    ),
   },
   {
     path: '/specialties/new',
-    element: <SpecialtyForm />,
+    element: (
+      <PrivateRoute>
+        <SpecialtyForm />
+      </PrivateRoute>
+    ),
   },
   {
     path: '/specialties',
-    element: <SpecialtyList />,
+    element: (
+      <PrivateRoute>
+        <SpecialtyList />
+      </PrivateRoute>
+    ),
   },
   {
     path: '/specialties/:id',
-    element: <SpecialtyForm />,
+    element: (
+      <PrivateRoute>
+        <SpecialtyForm />
+      </PrivateRoute>
+    ),
   },
   {
     path: '/professionals/new',
-    element: <ProfessionalForm />,
+    element: (
+      <PrivateRoute>
+        <ProfessionalForm />
+      </PrivateRoute>
+    ),
   },
   {
     path: '/professionals',
-    element: <ProfessionalList />,
+    element: (
+      <PrivateRoute>
+        <ProfessionalList />
+      </PrivateRoute>
+    ),
   },
   {
     path: '/professionals/:id',
-    element: <ProfessionalForm />,
+    element: (
+      <PrivateRoute>
+        <ProfessionalForm />
+      </PrivateRoute>
+    ),
   },
   {
     path: '/patients',
-    element: <PatientList />,
+    element: (
+      <PrivateRoute>
+        <PatientList />
+      </PrivateRoute>
+    ),
   },
   {
     path: '/patients/new',
@@ -69,6 +119,10 @@ export const router = createBrowserRouter([
   },
   {
     path: '/patients/:id',
-    element: <PatientForm />,
+    element: (
+      <PrivateRoute>
+        <PatientForm />
+      </PrivateRoute>
+    ),
   },
 ])

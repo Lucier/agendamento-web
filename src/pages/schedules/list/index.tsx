@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { api } from '../../../api/api'
+import { Header } from '../../../components/Header'
 import { useSchedules } from '../../../hooks/useSchedule.hook'
 
 export default function ScheduleList() {
@@ -31,51 +32,56 @@ export default function ScheduleList() {
   }
 
   return (
-    <div>
-      <h1>Schedules</h1>
-      <button onClick={handleCreate} style={{ marginBottom: 10 }}>
-        Novo Agendamento
-      </button>
+    <>
+      <Header />
+      <div>
+        <h1>Schedules</h1>
+        <button onClick={handleCreate} style={{ marginBottom: 10 }}>
+          Novo Agendamento
+        </button>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Profissional</th>
-            <th>Data</th>
-            <th>Horário</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {data?.map((schedule) => (
-            <tr key={schedule.id}>
-              <td>{schedule.professional?.name}</td>
-              <td>
-                {new Date(schedule.date).toLocaleDateString('pt-BR', {
-                  timeZone: 'UTC',
-                })}
-              </td>
-              <td>
-                {schedule.timeSlots?.map((slot) => slot.time).join(' | ')}
-              </td>
-              <td>
-                <button onClick={() => handleEdit(schedule.id)}>Editar</button>
-                <button
-                  onClick={() => handleDelete(schedule.id)}
-                  style={{
-                    marginLeft: 5,
-                    backgroundColor: 'red',
-                    color: 'white',
-                  }}
-                >
-                  Excluir
-                </button>
-              </td>
+        <table>
+          <thead>
+            <tr>
+              <th>Profissional</th>
+              <th>Data</th>
+              <th>Horário</th>
+              <th>Ações</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+
+          <tbody>
+            {data?.map((schedule) => (
+              <tr key={schedule.id}>
+                <td>{schedule.professional?.name}</td>
+                <td>
+                  {new Date(schedule.date).toLocaleDateString('pt-BR', {
+                    timeZone: 'UTC',
+                  })}
+                </td>
+                <td>
+                  {schedule.timeSlots?.map((slot) => slot.time).join(' | ')}
+                </td>
+                <td>
+                  <button onClick={() => handleEdit(schedule.id)}>
+                    Editar
+                  </button>
+                  <button
+                    onClick={() => handleDelete(schedule.id)}
+                    style={{
+                      marginLeft: 5,
+                      backgroundColor: 'red',
+                      color: 'white',
+                    }}
+                  >
+                    Excluir
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
   )
 }
