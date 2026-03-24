@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom'
 import { api } from '../../../api/api'
-import { Header } from '../../../components/Header'
 import { useSchedules } from '../../../hooks/useSchedule.hook'
 
 export default function ScheduleList() {
@@ -33,7 +32,6 @@ export default function ScheduleList() {
 
   return (
     <>
-      <Header />
       <div>
         <h1>Schedules</h1>
         <button onClick={handleCreate} style={{ marginBottom: 10 }}>

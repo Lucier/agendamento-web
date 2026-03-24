@@ -1,7 +1,9 @@
 import { createBrowserRouter } from 'react-router-dom'
 import { PrivateRoute } from '../components/PrivateRoute'
+import { AppLayout } from '../layouts/AppLayout'
 import { AppointmentForm } from '../pages/appointments/create'
 import { AppointmentList } from '../pages/appointments/list'
+import { Dashboard } from '../pages/dashborad'
 import { LoginForm } from '../pages/login/LoginForm'
 import PatientForm from '../pages/patients/create'
 import PatientList from '../pages/patients/list'
@@ -17,112 +19,79 @@ export const router = createBrowserRouter([
     path: '/',
     element: <LoginForm />,
   },
+
+  // ROTAS PROTEGIDAS
   {
-    path: '/schedules/new',
     element: (
       <PrivateRoute>
-        <ScheduleForm />
+        <AppLayout />
       </PrivateRoute>
     ),
-  },
-  {
-    path: '/schedules',
-    element: (
-      <PrivateRoute>
-        <ScheduleList />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: '/schedules/edit/:id',
-    element: (
-      <PrivateRoute>
-        <ScheduleForm />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: '/appointments/new',
-    element: <AppointmentForm />,
-  },
-  {
-    path: '/appointments',
-    element: <AppointmentList />,
-  },
-  {
-    path: '/appointments/:id',
-    element: (
-      <PrivateRoute>
-        <AppointmentForm />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: '/specialties/new',
-    element: (
-      <PrivateRoute>
-        <SpecialtyForm />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: '/specialties',
-    element: (
-      <PrivateRoute>
-        <SpecialtyList />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: '/specialties/:id',
-    element: (
-      <PrivateRoute>
-        <SpecialtyForm />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: '/professionals/new',
-    element: (
-      <PrivateRoute>
-        <ProfessionalForm />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: '/professionals',
-    element: (
-      <PrivateRoute>
-        <ProfessionalList />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: '/professionals/:id',
-    element: (
-      <PrivateRoute>
-        <ProfessionalForm />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: '/patients',
-    element: (
-      <PrivateRoute>
-        <PatientList />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: '/patients/new',
-    element: <PatientForm />,
-  },
-  {
-    path: '/patients/:id',
-    element: (
-      <PrivateRoute>
-        <PatientForm />
-      </PrivateRoute>
-    ),
+    children: [
+      {
+        path: '/dashboard',
+        element: <Dashboard />,
+      },
+      {
+        path: '/schedules',
+        element: <ScheduleList />,
+      },
+      {
+        path: '/schedules/new',
+        element: <ScheduleForm />,
+      },
+      {
+        path: '/schedules/edit/:id',
+        element: <ScheduleForm />,
+      },
+      {
+        path: '/appointments',
+        element: <AppointmentList />,
+      },
+      {
+        path: '/appointments/new',
+        element: <AppointmentForm />,
+      },
+      {
+        path: '/appointments/:id',
+        element: <AppointmentForm />,
+      },
+      {
+        path: '/specialties',
+        element: <SpecialtyList />,
+      },
+      {
+        path: '/specialties/new',
+        element: <SpecialtyForm />,
+      },
+      {
+        path: '/specialties/:id',
+        element: <SpecialtyForm />,
+      },
+      {
+        path: '/professionals',
+        element: <ProfessionalList />,
+      },
+      {
+        path: '/professionals/new',
+        element: <ProfessionalForm />,
+      },
+      {
+        path: '/professionals/:id',
+        element: <ProfessionalForm />,
+      },
+      {
+        path: '/patients',
+        element: <PatientList />,
+      },
+      {
+        path: '/patients/new',
+        element: <PatientForm />,
+      },
+      {
+        path: '/patients/:id',
+        element: <PatientForm />,
+      },
+    ],
   },
 ])

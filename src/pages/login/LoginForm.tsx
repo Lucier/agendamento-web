@@ -26,7 +26,7 @@ export function LoginForm() {
       localStorage.setItem('token', access_token)
 
       // redireciona para schedules
-      navigate('/schedules')
+      navigate('/dashboard')
     } catch (error) {
       alert('Email ou senha inválidos')
     }
