@@ -3,7 +3,8 @@ import { api } from '../../api/api'
 
 type Appointment = {
   id: string
-  date: string
+  dateTime: string
+  canceled?: boolean
   patient?: { name: string }
   professional?: { name: string }
 }
@@ -31,23 +32,30 @@ export function Dashboard() {
 
         const appointments = appointmentsRes.data
 
-        const today = new Date().toISOString().split('T')[0]
+        // HOJE (corrigido timezone)
+        const todayDate = new Date()
+        todayDate.setHours(0, 0, 0, 0)
+        const today = todayDate.toLocaleDateString('sv-SE')
 
-        const todayList = appointments.filter(
-          (a: Appointment) => a.date?.split('T')[0] === today,
-        )
+        const todayList = appointments.filter((a: Appointment) => {
+          const d = new Date(a.dateTime)
+          return d.toLocaleDateString('sv-SE') === today
+        })
 
-        // próximos 5
+        // PRÓXIMOS 5
         const now = new Date()
         const next = appointments
-          .filter((a: Appointment) => new Date(a.date) > now)
+          .filter((a: Appointment) => {
+            const d = new Date(a.dateTime)
+            return d.getTime() > now.getTime()
+          })
           .sort(
             (a: Appointment, b: Appointment) =>
-              new Date(a.date).getTime() - new Date(b.date).getTime(),
+              new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime(),
           )
           .slice(0, 5)
 
-        // estatística semanal
+        // ESTATÍSTICA SEMANAL
         const week: Record<string, number> = {
           Dom: 0,
           Seg: 0,
@@ -58,10 +66,21 @@ export function Dashboard() {
           Sáb: 0,
         }
 
+        const start = new Date()
+        start.setHours(0, 0, 0, 0)
+        start.setDate(start.getDate() - start.getDay())
+
+        const end = new Date(start)
+        end.setDate(end.getDate() + 7)
+
         appointments.forEach((a: Appointment) => {
-          const day = new Date(a.date).getDay()
-          const map = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
-          week[map[day]]++
+          const d = new Date(a.dateTime)
+
+          if (d >= start && d < end) {
+            const day = d.getDay()
+            const map = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
+            week[map[day]]++
+          }
         })
 
         setStats({
@@ -85,7 +104,6 @@ export function Dashboard() {
     <div style={{ padding: 20 }}>
       <h1>Dashboard</h1>
 
-      {/* CARDS */}
       <div style={{ display: 'flex', gap: 20 }}>
         <Card title="Agendamentos" value={stats.appointments} />
         <Card title="Profissionais" value={stats.professionals} />
@@ -93,7 +111,6 @@ export function Dashboard() {
         <Card title="Hoje" value={todayAppointments.length} />
       </div>
 
-      {/* AGENDAMENTOS HOJE */}
       <Section title="Agendamentos de Hoje">
         {todayAppointments.length === 0 ? (
           <p>Sem agendamentos hoje</p>
@@ -102,12 +119,10 @@ export function Dashboard() {
         )}
       </Section>
 
-      {/* PRÓXIMOS */}
       <Section title="Próximos 5 atendimentos">
         <Table data={nextAppointments} />
       </Section>
 
-      {/* GRAFICO SEMANAL */}
       <Section title="Agendamentos da semana">
         <div style={{ display: 'flex', gap: 10 }}>
           {Object.entries(weekStats).map(([day, value]) => (
@@ -125,7 +140,6 @@ export function Dashboard() {
         </div>
       </Section>
 
-      {/* ALERTA */}
       {todayAppointments.length < 5 && (
         <div
           style={{
@@ -181,7 +195,7 @@ function Table({ data }: { data: Appointment[] }) {
         {data.map((a) => (
           <tr key={a.id}>
             <td>
-              {new Date(a.date).toLocaleTimeString('pt-BR', {
+              {new Date(a.dateTime).toLocaleTimeString('pt-BR', {
                 hour: '2-digit',
                 minute: '2-digit',
               })}
