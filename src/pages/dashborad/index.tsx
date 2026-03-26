@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../api/api'
+import type { Appointment } from '../../types'
 
-type Appointment = {
-  id: string
-  dateTime: string
-  canceled?: boolean
-  patient?: { name: string }
-  professional?: { name: string }
+type AppointmentStatus = 'SCHEDULED' | 'CONFIRMED' | 'DONE' | 'CANCELED'
+
+const statusLabel: Record<AppointmentStatus, string> = {
+  SCHEDULED: 'Agendado',
+  CONFIRMED: 'Confirmado',
+  DONE: 'Realizado',
+  CANCELED: 'Cancelado',
 }
 
 export function Dashboard() {
@@ -189,19 +191,25 @@ function Table({ data }: { data: Appointment[] }) {
           <th>Hora</th>
           <th>Paciente</th>
           <th>Profissional</th>
+          <th>Status</th>
         </tr>
       </thead>
+
       <tbody>
-        {data.map((a) => (
-          <tr key={a.id}>
+        {data.map((appointment: any) => (
+          <tr key={appointment.id}>
             <td>
-              {new Date(a.dateTime).toLocaleTimeString('pt-BR', {
+              {new Date(appointment.dateTime).toLocaleTimeString([], {
                 hour: '2-digit',
                 minute: '2-digit',
               })}
             </td>
-            <td>{a.patient?.name}</td>
-            <td>{a.professional?.name}</td>
+
+            <td>{appointment.patient?.name}</td>
+
+            <td>{appointment.professional?.name}</td>
+
+            <td>{statusLabel[appointment.status as AppointmentStatus]}</td>
           </tr>
         ))}
       </tbody>

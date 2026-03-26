@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { api } from '../../../api/api'
 import { useAppointments } from '../../../hooks/useAppointments.hook'
 
 export function AppointmentList() {
@@ -17,6 +18,16 @@ export function AppointmentList() {
     } catch (error) {
       console.error(error)
       alert('Erro ao excluir')
+    }
+  }
+
+  const handleUpdateStatus = async (id: string, status: string) => {
+    try {
+      await api.patch(`/appointments/${id}/status`, { status })
+      appointmentsQuery.refetch()
+    } catch (error) {
+      console.error(error)
+      alert('Erro ao atualizar status')
     }
   }
 
@@ -40,6 +51,7 @@ export function AppointmentList() {
             <th>Profissional</th>
             <th>Data</th>
             <th>Hora</th>
+            <th>Status</th>
             <th>Ações</th>
           </tr>
         </thead>
@@ -50,7 +62,9 @@ export function AppointmentList() {
               <td>{appointment.patient?.name}</td>
               <td>{appointment.patient?.sus_card}</td>
               <td>{appointment.professional?.name}</td>
+
               <td>{new Date(appointment.dateTime).toLocaleDateString()}</td>
+
               <td>
                 {new Date(appointment.dateTime).toLocaleTimeString([], {
                   hour: '2-digit',
@@ -58,9 +72,32 @@ export function AppointmentList() {
                 })}
               </td>
 
+              <td>{appointment.status}</td>
+
               <td>
                 <button onClick={() => handleEdit(appointment.id)}>
                   Editar
+                </button>
+
+                <button
+                  onClick={() =>
+                    handleUpdateStatus(appointment.id, 'CONFIRMED')
+                  }
+                >
+                  Confirmar
+                </button>
+
+                <button
+                  onClick={() => handleUpdateStatus(appointment.id, 'DONE')}
+                >
+                  Realizado
+                </button>
+
+                <button
+                  onClick={() => handleUpdateStatus(appointment.id, 'CANCELED')}
+                  style={{ color: 'orange' }}
+                >
+                  Cancelar
                 </button>
 
                 <button

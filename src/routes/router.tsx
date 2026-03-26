@@ -3,7 +3,9 @@ import { PrivateRoute } from '../components/PrivateRoute'
 import { AppLayout } from '../layouts/AppLayout'
 import { AppointmentForm } from '../pages/appointments/create'
 import { AppointmentList } from '../pages/appointments/list'
+import { Consulta } from '../pages/consulta'
 import { Dashboard } from '../pages/dashborad'
+import { Home } from '../pages/home/Home'
 import { LoginForm } from '../pages/login/LoginForm'
 import PatientForm from '../pages/patients/create'
 import PatientList from '../pages/patients/list'
@@ -15,6 +17,18 @@ import SpecialtyForm from '../pages/specialties/create'
 import SpecialtyList from '../pages/specialties/list'
 
 export const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <Home />,
+  },
+  {
+    path: '/consulta',
+    element: <Consulta />,
+  },
+  {
+    path: '/login',
+    element: <LoginForm />,
+  },
   {
     path: '/',
     element: <LoginForm />,

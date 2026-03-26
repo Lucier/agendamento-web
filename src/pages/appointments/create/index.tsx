@@ -119,6 +119,10 @@ export function AppointmentForm() {
     }
   }
 
+  async function updateStatus(id: string, status: string) {
+    await api.patch(`/appointments/${id}/status`, { status })
+  }
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <h2>{appointmentId ? 'Editar Consulta' : 'Nova Consulta'}</h2>
