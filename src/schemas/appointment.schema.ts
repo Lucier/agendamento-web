@@ -5,6 +5,7 @@ export const createAppointmentSchema = z.object({
   sus_card: z.string().min(6, 'Cartão inválido'),
   professionalId: z.string().uuid(),
   timeSlotId: z.string().uuid(),
+  date: z.string(),
 })
 
 export type CreateAppointmentDTO = z.infer<typeof createAppointmentSchema>

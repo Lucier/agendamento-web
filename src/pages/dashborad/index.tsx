@@ -188,6 +188,7 @@ function Table({ data }: { data: Appointment[] }) {
     <table width="100%">
       <thead>
         <tr>
+          <th>Data</th>
           <th>Hora</th>
           <th>Paciente</th>
           <th>Profissional</th>
@@ -198,6 +199,9 @@ function Table({ data }: { data: Appointment[] }) {
       <tbody>
         {data.map((appointment: any) => (
           <tr key={appointment.id}>
+            <td>
+              {new Date(appointment.dateTime).toLocaleDateString('pt-BR')}
+            </td>
             <td>
               {new Date(appointment.dateTime).toLocaleTimeString([], {
                 hour: '2-digit',

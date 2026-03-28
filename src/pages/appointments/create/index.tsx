@@ -81,16 +81,47 @@ export function AppointmentForm() {
 
   const onSubmit = async (data: CreateAppointmentDTO) => {
     try {
+      let patientId: string | undefined
+
+      // tenta buscar paciente
+      try {
+        const { data: patient } = await api.get(
+          `/patients/sus/${data.sus_card}`,
+        )
+
+        if (patient?.id) {
+          patientId = patient.id
+        }
+      } catch {
+        // segue para criação
+      }
+
+      // cria paciente se não existir
+      if (!patientId) {
+        const { data: newPatient } = await api.post('/patients/new', {
+          name: data.name,
+          sus_card: data.sus_card,
+        })
+
+        patientId = newPatient.id
+      }
+
+      if (!patientId) {
+        alert('Erro ao obter paciente')
+        return
+      }
+
       const payload = {
-        name: data.name,
-        sus_card: data.sus_card,
+        patientId,
         professionalId: selectedProfessional,
         timeSlotId: data.timeSlotId,
+        date: data.date,
       }
+
+      console.log('PAYLOAD', payload)
 
       if (appointmentId) {
         await api.put(`/appointments/${appointmentId}`, payload)
-
         alert('Agendamento atualizado com sucesso! ✏️')
       } else {
         await createAppointmentMutation.mutateAsync(payload)
@@ -98,10 +129,9 @@ export function AppointmentForm() {
       }
 
       reset()
-
       navigate('/appointments')
-    } catch (error: any) {
-      console.error(error?.response?.data)
+    } catch (error) {
+      console.error('ERRO COMPLETO', error)
       alert('Erro ao salvar agendamento')
     }
   }
@@ -124,7 +154,11 @@ export function AppointmentForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form
+      onSubmit={handleSubmit(onSubmit, (errors) => {
+        console.log('ERROS DO FORM', errors)
+      })}
+    >
       <h2>{appointmentId ? 'Editar Consulta' : 'Nova Consulta'}</h2>
 
       <input placeholder="Nome do paciente" {...register('name')} />
@@ -149,8 +183,9 @@ export function AppointmentForm() {
 
       <select
         {...register('professionalId')}
-        value={selectedProfessional}
-        onChange={(e) => setSelectedProfessional(e.target.value)}
+        onChange={(e) => {
+          setSelectedProfessional(e.target.value)
+        }}
         disabled={!selectedSpecialty}
       >
         <option value="">Selecione o profissional</option>
@@ -163,12 +198,19 @@ export function AppointmentForm() {
 
       <input
         type="date"
+        {...register('date')}
         value={selectedDate}
-        onChange={(e) => setSelectedDate(e.target.value)}
+        onChange={(e) => {
+          ;(setSelectedDate(e.target.value), setValue('date', e.target.value))
+        }}
         disabled={!selectedProfessional}
       />
 
-      <select {...register('timeSlotId')} disabled={!selectedDate}>
+      <select
+        {...register('timeSlotId')}
+        onChange={(e) => setValue('timeSlotId', e.target.value)}
+        disabled={!selectedDate}
+      >
         <option value="">Selecione o horário</option>
         {slotsQuery.data?.map((slot) => (
           <option key={slot.id} value={slot.id}>

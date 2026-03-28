@@ -1,9 +1,13 @@
 import { api } from '../api/api'
-import type {
-  CreateAppointmentDTO,
-  UpdateAppointmentDTO,
-} from '../schemas/appointment.schema'
+import type { UpdateAppointmentDTO } from '../schemas/appointment.schema'
 import type { Appointment } from '../types'
+
+export type CreateAppointmentPayload = {
+  patientId: string
+  professionalId: string
+  timeSlotId: string
+  date: string
+}
 
 export const appointmentService = {
   findAll: async (): Promise<Appointment[]> => {
@@ -28,7 +32,7 @@ export const appointmentService = {
     return data
   },
 
-  create(data: CreateAppointmentDTO) {
+  create(data: CreateAppointmentPayload) {
     console.log('SERVICE CREATE', data)
     return api.post('/appointments/new', data)
   },

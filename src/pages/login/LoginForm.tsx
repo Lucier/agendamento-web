@@ -33,9 +33,8 @@ export function LoginForm() {
   }
 
   return (
-    <div>
+    <>
       <h1>Login</h1>
-
       <form onSubmit={handleSubmit(handleLogin)}>
         <input placeholder="Login" type="email" {...register('email')} />
 
@@ -45,6 +44,6 @@ export function LoginForm() {
           Entrar
         </button>
       </form>
-    </div>
+    </>
   )
 }

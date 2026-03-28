@@ -12,6 +12,11 @@ export function Home() {
           <button>Consulte o status do seu Agendamento</button>
         </Link>
       </div>
+      <div style={{ marginTop: 30 }}>
+        <Link to="/appointments/new">
+          <button>Faça o agendamento da sua consulta</button>
+        </Link>
+      </div>
 
       <div style={{ marginTop: 10 }}>
         <Link to="/login">

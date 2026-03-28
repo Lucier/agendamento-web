@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import type { CreateAppointmentDTO } from '../schemas/appointment.schema'
-import { appointmentService } from '../services/appointment.service'
+import {
+  appointmentService,
+  type CreateAppointmentPayload,
+} from '../services/appointment.service'
 
 type Specialty = {
   id: string
@@ -18,9 +20,12 @@ export function useAppointments() {
 
   // Criar agendamento
   const createAppointmentMutation = useMutation({
-    mutationFn: (data: CreateAppointmentDTO) => appointmentService.create(data),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ['appointments'] }),
+    mutationFn: (data: CreateAppointmentPayload) =>
+      appointmentService.create(data),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['appointments'] })
+    },
   })
 
   // Especialidades

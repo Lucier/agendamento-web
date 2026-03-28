@@ -33,6 +33,10 @@ export const router = createBrowserRouter([
     path: '/',
     element: <LoginForm />,
   },
+  {
+    path: '/appointments/new',
+    element: <AppointmentForm />,
+  },
 
   // ROTAS PROTEGIDAS
   {
@@ -62,10 +66,7 @@ export const router = createBrowserRouter([
         path: '/appointments',
         element: <AppointmentList />,
       },
-      {
-        path: '/appointments/new',
-        element: <AppointmentForm />,
-      },
+
       {
         path: '/appointments/:id',
         element: <AppointmentForm />,
