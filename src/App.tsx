@@ -1,11 +1,5 @@
-import { GlobalStyle } from './styles/global'
-
 function App() {
-  return (
-    <>
-      <GlobalStyle />
-    </>
-  )
+  return <h1>agendamento-web</h1>
 }
 
 export default App

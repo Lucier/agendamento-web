@@ -1,13 +1,16 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { LuArrowLeft } from 'react-icons/lu'
 import { useNavigate, useParams } from 'react-router-dom'
+import Select from 'react-select'
 import { api } from '../../../api/api'
 import { useAppointments } from '../../../hooks/useAppointments.hook'
 import {
   type CreateAppointmentDTO,
   createAppointmentSchema,
 } from '../../../schemas/appointment.schema'
+import * as S from './style'
 
 export function AppointmentForm() {
   const navigate = useNavigate()
@@ -24,6 +27,7 @@ export function AppointmentForm() {
     handleSubmit,
     setValue,
     reset,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<CreateAppointmentDTO>({
     resolver: zodResolver(createAppointmentSchema),
@@ -136,102 +140,297 @@ export function AppointmentForm() {
     }
   }
 
-  const handleDeleteAppointment = async () => {
-    if (!appointmentId) return
-    if (!window.confirm('Deseja realmente excluir este agendamento?')) return
-    try {
-      await api.delete(`/appointments/${appointmentId}`)
-      alert('Agendamento excluído!')
-      navigate('/appointments')
-    } catch (err) {
-      console.error(err)
-      alert('Erro ao excluir agendamento')
-    }
-  }
+  // Transforma as especialidades para o formato do Select
+  const specialtyOptions =
+    specialtiesQuery.data?.map((s) => ({
+      value: s.id,
+      label: s.name,
+    })) || []
 
-  async function updateStatus(id: string, status: string) {
-    await api.patch(`/appointments/${id}/status`, { status })
-  }
+  // Transforma os profissionais para o formato do Select
+  const professionalOptions =
+    professionalsQuery.data?.map((p) => ({
+      value: p.id,
+      label: p.name,
+    })) || []
+
+  // Transforma os horários para o formato do Select
+  const slotOptions =
+    slotsQuery.data?.map((s) => ({
+      value: s.id,
+      label: s.time,
+    })) || []
 
   return (
     <form
       onSubmit={handleSubmit(onSubmit, (errors) => {
         console.log('ERROS DO FORM', errors)
       })}
+      style={{
+        minHeight: '100vh',
+        background: 'white',
+      }}
     >
-      <h2>{appointmentId ? 'Editar Consulta' : 'Nova Consulta'}</h2>
-
-      <input placeholder="Nome do paciente" {...register('name')} />
-      {errors.name && <p style={{ color: 'red' }}>{errors.name.message}</p>}
-
-      <input placeholder="Cartão do SUS" {...register('sus_card')} />
-      {errors.sus_card && (
-        <p style={{ color: 'red' }}>{errors.sus_card.message}</p>
-      )}
-
-      <select
-        value={selectedSpecialty}
-        onChange={(e) => setSelectedSpecialty(e.target.value)}
-      >
-        <option value="">Selecione a especialidade</option>
-        {specialtiesQuery.data?.map((s) => (
-          <option key={s.id} value={s.id}>
-            {s.name}
-          </option>
-        ))}
-      </select>
-
-      <select
-        {...register('professionalId')}
-        onChange={(e) => {
-          setSelectedProfessional(e.target.value)
+      {/* App Bar */}
+      <header
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 10,
+          display: 'flex',
+          alignItems: 'center',
+          padding: '1rem',
+          background: '#f5f7f8',
+          borderBottom: '1px solid rgba(0,92,173,0.1)',
         }}
-        disabled={!selectedSpecialty}
       >
-        <option value="">Selecione o profissional</option>
-        {professionalsQuery.data?.map((professional) => (
-          <option key={professional.id} value={professional.id}>
-            {professional.name}
-          </option>
-        ))}
-      </select>
-
-      <input
-        type="date"
-        {...register('date')}
-        value={selectedDate}
-        onChange={(e) => {
-          ;(setSelectedDate(e.target.value), setValue('date', e.target.value))
-        }}
-        disabled={!selectedProfessional}
-      />
-
-      <select
-        {...register('timeSlotId')}
-        onChange={(e) => setValue('timeSlotId', e.target.value)}
-        disabled={!selectedDate}
-      >
-        <option value="">Selecione o horário</option>
-        {slotsQuery.data?.map((slot) => (
-          <option key={slot.id} value={slot.id}>
-            {slot.time}
-          </option>
-        ))}
-      </select>
-
-      <button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? 'Salvando...' : 'Agendar Consulta'}
-      </button>
-
-      {appointmentId && (
-        <button
-          type="button"
-          onClick={handleDeleteAppointment}
-          style={{ marginLeft: 10, backgroundColor: 'red', color: 'white' }}
+        <LuArrowLeft
+          size={24}
+          style={{ color: S.theme.colors.primary, cursor: 'pointer' }}
+          onClick={() => navigate('/')}
+        />
+        <h2
+          style={{
+            flex: 1,
+            textAlign: 'center',
+            fontSize: '1.125rem',
+            fontWeight: 700,
+            margin: 0,
+          }}
         >
-          Excluir
+          Nova Consulta
+        </h2>
+        <div style={{ width: 24 }} />
+      </header>
+
+      {/* DADOS PACIENTE */}
+      <div style={{ padding: ' 1rem', background: 'white' }}>
+        <span
+          style={{
+            fontSize: '0.75rem',
+            fontWeight: 700,
+            color: '#64748b',
+            display: 'block',
+            marginBottom: '0.5rem',
+          }}
+        >
+          NOME DO PACIENTE
+        </span>
+        <S.SearchBar>
+          <input
+            type="text"
+            placeholder="Nome do paciente"
+            inputMode="text"
+            maxLength={100}
+            required
+          />
+        </S.SearchBar>
+      </div>
+
+      <div style={{ padding: '0 1rem', background: 'white' }}>
+        <span
+          style={{
+            fontSize: '0.75rem',
+            fontWeight: 700,
+            color: '#64748b',
+            display: 'block',
+            marginBottom: '0.5rem',
+          }}
+        >
+          NÚMERO DO CARTÃO SUS
+        </span>
+        <S.SearchBar>
+          <input
+            type="text"
+            placeholder="000 0000 0000 0000"
+            inputMode="numeric"
+            maxLength={15}
+            required
+          />
+        </S.SearchBar>
+      </div>
+
+      {/* SELECT DE ESPECIALIDADES */}
+      <div
+        style={{
+          padding: '1rem',
+          background: 'white',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1rem',
+        }}
+      >
+        <div>
+          <span
+            style={{
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              color: '#64748b',
+              display: 'block',
+              marginBottom: '0.5rem',
+            }}
+          >
+            ESPECIALIDADE
+          </span>
+          <Select
+            options={specialtyOptions}
+            placeholder="Selecione a especialidade"
+            isLoading={specialtiesQuery.isLoading}
+            value={specialtyOptions.find(
+              (opt) => opt.value === selectedSpecialty,
+            )}
+            onChange={(newValue) => {
+              const val = newValue?.value || ''
+
+              // 1. Atualiza a especialidade
+              setSelectedSpecialty(val)
+
+              // 2. LIMPA O PROFISSIONAL (Estado e Form)
+              setSelectedProfessional('')
+              setValue('professionalId', '')
+
+              // 3. LIMPA A DATA E HORÁRIO (Para evitar agendamentos inválidos)
+              setSelectedDate('')
+              setValue('date', '')
+              setValue('timeSlotId', '')
+            }}
+          />
+        </div>
+
+        {/* SELECT DE PROFISSIONAIS */}
+        <div>
+          <span
+            style={{
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              color: '#64748b',
+              display: 'block',
+              marginBottom: '0.5rem',
+            }}
+          >
+            PROFISSIONAL
+          </span>
+          <Select
+            options={professionalOptions}
+            placeholder="Selecione o profissional"
+            isLoading={professionalsQuery.isFetching}
+            isDisabled={!selectedSpecialty}
+            value={
+              professionalOptions.find(
+                (opt) => opt.value === selectedProfessional,
+              ) || null
+            }
+            onChange={(newValue) => {
+              const val = newValue?.value || ''
+              setSelectedProfessional(val)
+              setValue('professionalId', val) // Atualiza o valor no react-hook-form
+            }}
+          />
+        </div>
+      </div>
+
+      {/* DATA E HORARIO */}
+      <div
+        style={{
+          padding: '1rem',
+          background: 'white',
+          display: 'flex',
+          justifyContent: 'space-between',
+          gap: '0.5rem',
+        }}
+      >
+        {/* DATA */}
+        <div style={{ flex: 1 }}>
+          <label
+            style={{
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              color: '#64748b',
+              display: 'block',
+              marginBottom: '0.5rem',
+            }}
+          >
+            DATA DA CONSULTA
+          </label>
+          <input
+            type="date"
+            disabled={!selectedProfessional}
+            style={{
+              width: '100%',
+              height: '2.7rem',
+              padding: '10px',
+              borderRadius: '4px',
+              border: '1px solid #ccc',
+              boxSizing: 'border-box',
+            }}
+            value={selectedDate}
+            onChange={(e) => {
+              const val = e.target.value || ''
+
+              // 1. Atualiza o estado da data para carregar os novos slots
+              setSelectedDate(val)
+              setValue('date', val)
+
+              // 2. LIMPA O HORÁRIO (Visual e no Formulário)
+              // Como o horário depende da data, se a data muda, o horário anterior é inválido.
+              setValue('timeSlotId', '')
+            }}
+          />
+        </div>
+
+        {/* HORÁRIO  */}
+        <div style={{ flex: 1 }}>
+          <label
+            style={{
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              color: '#64748b',
+              display: 'block',
+              marginBottom: '0.5rem',
+            }}
+          >
+            HORÁRIO DISPONÍVEL
+          </label>
+          <Select
+            options={slotOptions}
+            placeholder="Escolha um horário"
+            isDisabled={!selectedDate || slotsQuery.isLoading}
+            isLoading={slotsQuery.isFetching}
+            // Dica: para simplificar o 'value' do slot na edição, use o valor direto do form:
+            value={
+              slotOptions.find((opt) => opt.value === watch('timeSlotId')) ||
+              null
+            }
+            onChange={(newValue) => {
+              setValue('timeSlotId', newValue?.value || '')
+            }}
+          />
+        </div>
+      </div>
+
+      <div style={{ padding: '1rem', background: 'white' }}>
+        <button
+          style={{
+            width: '100%',
+            marginTop: '1rem',
+            padding: '0.625rem',
+            borderRadius: '0.5rem',
+            background: S.theme.colors.primary,
+            color: 'white',
+            border: 'none',
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            cursor: 'pointer',
+          }}
+          type="submit"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Salvando...' : 'Agendar Consulta'}
         </button>
-      )}
+      </div>
     </form>
   )
 }

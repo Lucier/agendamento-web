@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { api } from '../../api/api'
 
 import { motion } from 'framer-motion'
+import { IoMdHelpCircle } from 'react-icons/io'
 import {
   LuArrowLeft,
   LuCalendar,
@@ -263,7 +264,7 @@ export function Consulta() {
                     }}
                   >
                     <LuMapPin size={18} color={S.theme.colors.primary} />
-                    <span>UBS José William</span>
+                    <span>UBS José Williams</span>
                   </div>
                 </div>
 
@@ -296,6 +297,25 @@ export function Consulta() {
                 </div>
               </S.AppointmentCard>
             ))}
+        <button
+          style={{
+            width: '100%',
+            padding: '1rem',
+            background: 'rgba(0, 92, 173, 0.05)',
+            border: '2px dashed rgba(0, 92, 173, 0.2)',
+            borderRadius: '1rem',
+            color: S.theme.colors.primary,
+            fontWeight: 700,
+            fontSize: '0.875rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            marginTop: '1rem',
+          }}
+        >
+          <IoMdHelpCircle size={18} /> Não encontrou seu registro? Suporte
+        </button>
       </motion.main>
     </div>
   )
