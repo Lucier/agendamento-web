@@ -28,7 +28,7 @@ export function AppointmentForm() {
     setValue,
     reset,
     watch,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
   } = useForm<CreateAppointmentDTO>({
     resolver: zodResolver(createAppointmentSchema),
     mode: 'onSubmit',
@@ -133,7 +133,7 @@ export function AppointmentForm() {
       }
 
       reset()
-      navigate('/appointments')
+      navigate('/')
     } catch (error) {
       console.error('ERRO COMPLETO', error)
       alert('Erro ao salvar agendamento')
@@ -222,6 +222,7 @@ export function AppointmentForm() {
             placeholder="Nome do paciente"
             inputMode="text"
             maxLength={100}
+            {...register('name')}
             required
           />
         </S.SearchBar>
@@ -245,6 +246,7 @@ export function AppointmentForm() {
             placeholder="000 0000 0000 0000"
             inputMode="numeric"
             maxLength={15}
+            {...register('sus_card')}
             required
           />
         </S.SearchBar>
@@ -413,7 +415,7 @@ export function AppointmentForm() {
           style={{
             width: '100%',
             marginTop: '1rem',
-            padding: '0.625rem',
+            padding: '0.875rem',
             borderRadius: '0.5rem',
             background: S.theme.colors.primary,
             color: 'white',
