@@ -10,9 +10,19 @@ export const Container = styled.div`
 
 export const Header = styled.div`
   margin-bottom: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    color: #3b82f6;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 1rem;
+  }
 
   h2 {
     font-size: 1.5rem;
@@ -20,18 +30,13 @@ export const Header = styled.div`
     color: #1e293b;
     margin: 0;
   }
-
-  p {
-    color: #64748b;
-    font-size: 0.875rem;
-  }
 `
 
 export const Card = styled.div`
   background: white;
   padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
   border: 1px solid #e2e8f0;
 `
 
@@ -45,36 +50,33 @@ export const FormGroup = styled.div`
     color: #475569;
     text-transform: uppercase;
     margin-bottom: 0.5rem;
-    letter-spacing: 0.025em;
   }
 
-  input {
+  input,
+  select {
     width: 100%;
-    height: 42px;
+    height: 45px;
     padding: 0 1rem;
     background: #ffffff;
     border: 1px solid #cbd5e1;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 0.95rem;
     color: #1e293b;
-    transition: all 0.2s;
     box-sizing: border-box;
 
     &:focus {
       outline: none;
       border-color: #3b82f6;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
-
-    &::placeholder {
-      color: #94a3b8;
-    }
-
-    &:disabled {
-      background: #f1f5f9;
-      cursor: not-allowed;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
     }
   }
+`
+
+export const TimeGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
 `
 
 export const ErrorMessage = styled.p`
@@ -96,29 +98,37 @@ export const ActionArea = styled.div`
   }
 `
 
-export const Button = styled.button<{ variant?: 'secondary' }>`
+export const Button = styled.button<{ variant?: 'danger' | 'secondary' }>`
   height: 48px;
   padding: 0 1.5rem;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.95rem;
+  border-radius: 10px;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   border: none;
+  transition: all 0.2s;
 
-  background: ${(props) =>
-    props.variant === 'secondary' ? '#f1f5f9' : '#3b82f6'};
-  color: ${(props) => (props.variant === 'secondary' ? '#475569' : 'white')};
+  background: ${(props) => {
+    if (props.variant === 'danger') return '#fff1f2'
+    if (props.variant === 'secondary') return '#f1f5f9'
+    return '#3b82f6'
+  }};
+
+  color: ${(props) => {
+    if (props.variant === 'danger') return '#e11d48'
+    if (props.variant === 'secondary') return '#475569'
+    return '#fff'
+  }};
 
   &:hover {
     filter: brightness(0.95);
   }
 
   &:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
   }
 `

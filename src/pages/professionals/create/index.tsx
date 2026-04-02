@@ -1,19 +1,24 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { LuArrowLeft, LuSave, LuStethoscope } from 'react-icons/lu'
 import { useNavigate, useParams } from 'react-router-dom'
+
 import { api } from '../../../api/api'
 import {
   createProfessionalSchema,
   type CreateProfessionalFormData,
 } from '../../../schemas/professional.schema'
 
+import * as S from './style'
+
 type Specialty = {
   id: string
   name: string
 }
 
-export function ProfessionalForm() {
+export default function ProfessionalForm() {
   const navigate = useNavigate()
   const { id } = useParams()
   const isEditing = Boolean(id)
@@ -29,7 +34,6 @@ export function ProfessionalForm() {
     resolver: zodResolver(createProfessionalSchema),
   })
 
-  // Carregar lista de especialidades para o select
   useEffect(() => {
     async function loadSpecialties() {
       try {
@@ -39,14 +43,11 @@ export function ProfessionalForm() {
         console.error('Erro ao carregar especialidades:', error)
       }
     }
-
     loadSpecialties()
   }, [])
 
-  // Carregar dados do profissional se estivermos editando
   useEffect(() => {
     if (!id) return
-
     async function loadProfessional() {
       try {
         const response = await api.get<CreateProfessionalFormData>(
@@ -57,7 +58,6 @@ export function ProfessionalForm() {
         console.error('Erro ao carregar profissional:', error)
       }
     }
-
     loadProfessional()
   }, [id, reset])
 
@@ -65,49 +65,87 @@ export function ProfessionalForm() {
     try {
       if (isEditing) {
         await api.patch(`/professionals/${id}`, data)
-        alert('Médico atualizado com sucesso!')
+        alert('Dados do médico atualizados! ✨')
       } else {
         await api.post('/professionals/new', data)
-        alert('Médico criado com sucesso!')
+        alert('Médico cadastrado com sucesso! 👨‍⚕️')
       }
-
       navigate('/professionals')
     } catch (error) {
-      console.error('Erro ao salvar profissional:', error)
-      alert('Erro ao salvar. Verifique os dados e tente novamente.')
+      alert('Erro ao salvar. Verifique se todos os campos estão preenchidos.')
     }
   }
 
   return (
-    <form onSubmit={handleSubmit(handleSaveProfessional)}>
-      <h2>{isEditing ? 'Editar Médico' : 'Novo Médico'}</h2>
+    <S.Container>
+      <S.Header>
+        <button onClick={() => navigate('/professionals')}>
+          <LuArrowLeft size={18} />
+          Voltar para listagem
+        </button>
+        <h2>{isEditing ? 'Editar Profissional' : 'Cadastrar Médico'}</h2>
+        <p>Preencha as informações abaixo para gerenciar o corpo clínico.</p>
+      </S.Header>
 
-      <div>
-        <label>Nome do médico</label>
-        <input placeholder="Nome" {...register('name')} />
-        {errors.name && <p style={{ color: 'red' }}>{errors.name.message}</p>}
-      </div>
+      <S.Card>
+        <form onSubmit={handleSubmit(handleSaveProfessional)}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              marginBottom: '2rem',
+              color: '#3b82f6',
+            }}
+          >
+            <LuStethoscope size={24} />
+            <span style={{ fontWeight: 800, color: '#1e293b' }}>
+              Dados Profissionais
+            </span>
+          </div>
 
-      <div>
-        <label>Especialidade</label>
-        <select {...register('specialtyId')}>
-          <option value="">Selecione uma especialidade</option>
-          {specialties.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.name}
-            </option>
-          ))}
-        </select>
-        {errors.specialtyId && (
-          <p style={{ color: 'red' }}>{errors.specialtyId.message}</p>
-        )}
-      </div>
+          <S.FormGroup>
+            <label>Nome Completo</label>
+            <input
+              placeholder="Ex: Dr. Alberto Ferreira"
+              {...register('name')}
+            />
+            {errors.name && (
+              <S.ErrorMessage>{errors.name.message}</S.ErrorMessage>
+            )}
+          </S.FormGroup>
 
-      <button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? 'Salvando...' : 'Salvar'}
-      </button>
-    </form>
+          <S.FormGroup>
+            <label>Especialidade Médica</label>
+            <select {...register('specialtyId')}>
+              <option value="">Selecione uma especialidade</option>
+              {specialties.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
+            {errors.specialtyId && (
+              <S.ErrorMessage>{errors.specialtyId.message}</S.ErrorMessage>
+            )}
+          </S.FormGroup>
+
+          <S.ActionArea>
+            <S.Button
+              type="button"
+              variant="secondary"
+              onClick={() => navigate('/professionals')}
+              disabled={isSubmitting}
+            >
+              Descartar
+            </S.Button>
+            <S.Button type="submit" disabled={isSubmitting}>
+              <LuSave size={20} />
+              {isSubmitting ? 'Gravando...' : 'Salvar Alterações'}
+            </S.Button>
+          </S.ActionArea>
+        </form>
+      </S.Card>
+    </S.Container>
   )
 }
-
-export default ProfessionalForm

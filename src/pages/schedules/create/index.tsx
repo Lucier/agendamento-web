@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
+import { LuArrowLeft, LuClock, LuSave, LuTrash2 } from 'react-icons/lu'
 import { useNavigate, useParams } from 'react-router-dom'
 import { api } from '../../../api/api'
 import { useProfessionals } from '../../../hooks/useProfessional.hook'
@@ -9,32 +11,33 @@ import {
   type CreateScheduleFormData,
 } from '../../../schemas/schedule.schema'
 
+import * as S from './style'
+
 export function ScheduleForm() {
   const navigate = useNavigate()
-  const { id: scheduleId } = useParams<{ id: string }>() // obtém o id da rota, se houver
-
+  const { id: scheduleId } = useParams<{ id: string }>()
   const { data: professionals } = useProfessionals()
 
   const {
     register,
     handleSubmit,
-    reset,
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<CreateScheduleFormData>({
     resolver: zodResolver(createScheduleSchema),
   })
 
-  // Carregar dados do schedule se estiver editando
   useEffect(() => {
     if (scheduleId) {
       api.get(`/schedules/${scheduleId}`).then((res) => {
         const schedule = res.data
-        // Preenche o formulário com os dados existentes
         setValue('professionalId', schedule.professionalId)
         setValue('date', new Date(schedule.date).toISOString().split('T')[0])
         setValue('start', schedule.timeSlots?.[0]?.time || '')
-        setValue('end', schedule.timeSlots?.[1]?.time || '')
+        setValue(
+          'end',
+          schedule.timeSlots?.[schedule.timeSlots.length - 1]?.time || '',
+        )
       })
     }
   }, [scheduleId, setValue])
@@ -42,75 +45,121 @@ export function ScheduleForm() {
   async function handleSaveSchedule(data: CreateScheduleFormData) {
     try {
       if (scheduleId) {
-        // Atualiza schedule existente
         await api.put(`/schedules/${scheduleId}`, data)
-        alert('Agendamento atualizado!')
+        alert('Horário atualizado com sucesso!')
       } else {
-        // Cria novo schedule
         await api.post('/schedules/new', data)
-        alert('Agendamento criado!')
+        alert('Novo horário criado!')
       }
-
-      reset()
       navigate('/schedules')
     } catch (error) {
-      console.error('Erro ao salvar horário', error)
+      alert('Erro ao salvar horário.')
     }
   }
 
   async function handleDeleteSchedule() {
-    if (!scheduleId) return
-
-    const confirmDelete = window.confirm(
-      'Deseja realmente excluir este agendamento?',
-    )
-    if (!confirmDelete) return
-
+    if (!window.confirm('Deseja realmente excluir este agendamento?')) return
     try {
       await api.delete(`/schedules/${scheduleId}`)
-      alert('Agendamento excluído!')
       navigate('/schedules')
     } catch (error) {
-      console.error('Erro ao excluir horário', error)
+      alert('Erro ao excluir.')
     }
   }
 
   return (
-    <form onSubmit={handleSubmit(handleSaveSchedule)}>
-      <h2>{scheduleId ? 'Editar horário' : 'Novo horário'}</h2>
-
-      <select {...register('professionalId')}>
-        <option value="">Selecione o profissional...</option>
-        {professionals?.map((professional) => (
-          <option key={professional.id} value={professional.id}>
-            {professional.name}
-          </option>
-        ))}
-      </select>
-      {errors.professionalId && (
-        <p style={{ color: 'red' }}>{errors.professionalId.message}</p>
-      )}
-
-      <input type="date" {...register('date')} />
-      {errors.date && <p style={{ color: 'red' }}>{errors.date.message}</p>}
-
-      <input type="time" {...register('start')} />
-      <input type="time" {...register('end')} />
-
-      <button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? 'Salvando...' : 'Salvar'}
-      </button>
-
-      {/* Mostrar botão de excluir apenas se estiver editando */}
-      {scheduleId && (
-        <button
-          type="button"
-          onClick={handleDeleteSchedule}
-          style={{ marginLeft: 10, backgroundColor: 'red', color: 'white' }}
-        >
-          Excluir
+    <S.Container>
+      <S.Header>
+        <button onClick={() => navigate('/schedules')}>
+          <LuArrowLeft size={20} /> Voltar
         </button>
-      )}
-    </form>
+        <h2>{scheduleId ? 'Editar Horário' : 'Novo Horário'}</h2>
+      </S.Header>
+
+      <S.Card>
+        <form onSubmit={handleSubmit(handleSaveSchedule)}>
+          <S.FormGroup>
+            <label>Profissional</label>
+            <select {...register('professionalId')}>
+              <option value="">Selecione o médico...</option>
+              {professionals?.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+            {errors.professionalId && (
+              <S.ErrorMessage>{errors.professionalId.message}</S.ErrorMessage>
+            )}
+          </S.FormGroup>
+
+          <S.FormGroup>
+            <label>Data da Agenda</label>
+            <input type="date" {...register('date')} />
+            {errors.date && (
+              <S.ErrorMessage>{errors.date.message}</S.ErrorMessage>
+            )}
+          </S.FormGroup>
+
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              color: '#64748b',
+              marginBottom: '0.5rem',
+            }}
+          >
+            <LuClock size={16} />
+            <span
+              style={{
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+              }}
+            >
+              Intervalo de Atendimento
+            </span>
+          </div>
+
+          <S.TimeGrid>
+            <S.FormGroup>
+              <label>Início</label>
+              <input type="time" {...register('start')} />
+            </S.FormGroup>
+            <S.FormGroup>
+              <label>Término</label>
+              <input type="time" {...register('end')} />
+            </S.FormGroup>
+          </S.TimeGrid>
+
+          <S.ActionArea>
+            {scheduleId && (
+              <S.Button
+                type="button"
+                variant="danger"
+                onClick={handleDeleteSchedule}
+                style={{ marginRight: 'auto' }}
+              >
+                <LuTrash2 size={18} /> Excluir
+              </S.Button>
+            )}
+
+            <S.Button
+              type="button"
+              variant="secondary"
+              onClick={() => navigate('/schedules')}
+            >
+              Cancelar
+            </S.Button>
+
+            <S.Button type="submit" disabled={isSubmitting}>
+              <LuSave size={18} />
+              {isSubmitting ? 'Salvando...' : 'Salvar Agenda'}
+            </S.Button>
+          </S.ActionArea>
+        </form>
+      </S.Card>
+    </S.Container>
   )
 }
