@@ -15,6 +15,7 @@ import * as S from './style'
 export default function ProfessionalList() {
   const { data, isLoading, deleteProfessional } = useProfessionals()
   const [searchName, setSearchName] = useState('')
+
   const navigate = useNavigate()
 
   const filteredProfessionals = data?.filter((professional) =>
@@ -88,7 +89,7 @@ export default function ProfessionalList() {
                     textTransform: 'uppercase',
                   }}
                 >
-                  Profissional de Saúde
+                  {item.specialty?.name || 'Profissional de Saúde'}
                 </div>
               </div>
             </div>

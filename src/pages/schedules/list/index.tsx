@@ -152,7 +152,7 @@ export default function ScheduleList() {
             <S.ActionArea>
               <button
                 className="edit-btn"
-                onClick={() => navigate(`/schedules/edit/${schedule}`)}
+                onClick={() => navigate(`/schedules/edit/${schedule.id}`)}
               >
                 <LuPencil size={16} /> Editar
               </button>

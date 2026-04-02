@@ -20,6 +20,9 @@ export type TimeSlot = {
 export type Professional = {
   id: string
   name: string
+  specialty?: {
+    name: string
+  }
 }
 
 export type Appointment = {
@@ -40,6 +43,10 @@ export type Appointment = {
   timeSlot?: {
     id: string
     time: string
+  }
+  specialty?: {
+    id: string
+    name: string
   }
 }
 

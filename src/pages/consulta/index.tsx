@@ -293,6 +293,7 @@ export function Consulta() {
                     <span style={{ fontSize: '1rem', fontWeight: 600 }}>
                       Dr. {a.professional?.name || 'Desconhecido'}
                     </span>
+                    <span>{a.specialty?.name || 'Profissional de Saúde'}</span>
                   </div>
                 </div>
               </S.AppointmentCard>
