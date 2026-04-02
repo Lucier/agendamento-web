@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   LuCalendar,
@@ -9,6 +8,7 @@ import {
   LuTrash2,
 } from 'react-icons/lu'
 import { useNavigate } from 'react-router-dom'
+import Swal from 'sweetalert2'
 import { api } from '../../../api/api'
 import { useSchedules } from '../../../hooks/useSchedule.hook'
 import * as S from './style'
@@ -18,13 +18,57 @@ export default function ScheduleList() {
   const navigate = useNavigate()
 
   async function handleDelete(scheduleId: string) {
-    if (!window.confirm('Deseja realmente excluir esta agenda?')) return
+    // 1. Alerta de Confirmação
+    const result = await Swal.fire({
+      title: 'Excluir esta agenda?',
+      text: 'Todos os horários vinculados a este dia serão removidos.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444', // Vermelho para perigo
+      cancelButtonColor: '#94a3b8', // Cinza para cancelar
+      confirmButtonText: 'Sim, excluir',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true,
+      background: '#ffffff',
+      color: '#1e293b',
+    })
+
+    // Se o usuário desistir, interrompe a função
+    if (!result.isConfirmed) return
 
     try {
+      // 2. Feedback de carregamento durante a deleção
+      Swal.fire({
+        title: 'Removendo agenda...',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading()
+        },
+      })
+
       await api.delete(`/schedules/${scheduleId}`)
+
+      // Atualiza a lista (o refetch que você já tinha)
       refetch()
+
+      // 3. Feedback de Sucesso (fecha sozinho em 1.5s)
+      await Swal.fire({
+        title: 'Agenda Removida!',
+        icon: 'success',
+        confirmButtonColor: '#3b82f6',
+        timer: 2000,
+        showConfirmButton: false,
+      })
     } catch (error) {
-      alert('Erro ao excluir agendamento')
+      console.error('Erro ao excluir horário', error)
+
+      // 4. Feedback de Erro
+      Swal.fire({
+        title: 'Não foi possível excluir',
+        text: 'Verifique se existem consultas vinculadas a este horário antes de excluir.',
+        icon: 'error',
+        confirmButtonColor: '#3b82f6',
+      })
     }
   }
 

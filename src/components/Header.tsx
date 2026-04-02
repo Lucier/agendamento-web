@@ -11,6 +11,7 @@ import {
   LuX,
 } from 'react-icons/lu'
 import { NavLink, useNavigate } from 'react-router-dom'
+import Swal from 'sweetalert2'
 import { api } from '../api/api'
 
 export function Header() {
@@ -31,13 +32,38 @@ export function Header() {
   }, [])
 
   async function handleLogout() {
-    try {
-      await api.post('/auth/logout')
-    } catch (error) {
-      // ignora erro de rede no logout
+    // Dispara o alerta de confirmação
+    const result = await Swal.fire({
+      title: 'Sair do sistema?',
+      text: 'Você precisará fazer login novamente para acessar os dados.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3b82f6', // Azul (padrão do seu sistema)
+      cancelButtonColor: '#94a3b8', // Slate/Cinza
+      confirmButtonText: 'Sim, sair',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true, // Coloca o "Cancelar" na esquerda no Desktop
+      background: '#ffffff',
+      color: '#1e293b',
+    })
+
+    // Se o usuário confirmou
+    if (result.isConfirmed) {
+      try {
+        // Mostra um carregamento enquanto a API responde
+        Swal.showLoading()
+
+        await api.post('/auth/logout')
+      } catch (error) {
+        // ignora erro de rede
+      } finally {
+        localStorage.removeItem('token')
+
+        // Fecha o alerta e navega
+        Swal.close()
+        navigate('/')
+      }
     }
-    localStorage.removeItem('token')
-    navigate('/')
   }
 
   const navItems = [
