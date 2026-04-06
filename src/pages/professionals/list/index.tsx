@@ -9,6 +9,7 @@ import {
   LuUser,
 } from 'react-icons/lu'
 import { useNavigate } from 'react-router-dom'
+import Swal from 'sweetalert2'
 import { useProfessionals } from '../../../hooks/useProfessional.hook'
 import * as S from './style'
 
@@ -23,13 +24,55 @@ export default function ProfessionalList() {
   )
 
   async function handleDelete(id: string) {
-    if (!confirm('Deseja excluir este médico?')) return
+    // 1. Alerta de Confirmação
+    const result = await Swal.fire({
+      title: 'Excluir este médico?',
+      text: 'Esta ação removerá o profissional do sistema e não pode ser desfeita.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444', // Vermelho para perigo
+      cancelButtonColor: '#94a3b8', // Cinza para cancelar
+      confirmButtonText: 'Sim, excluir',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true,
+      background: '#ffffff',
+      color: '#1e293b',
+    })
+
+    // Se o usuário desistir, interrompe a função
+    if (!result.isConfirmed) return
 
     try {
+      // 2. Feedback de carregamento durante a deleção
+      Swal.fire({
+        title: 'Removendo profissional...',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading()
+        },
+      })
+
       await deleteProfessional(id)
-      alert('Médico excluído com sucesso! ✨')
+
+      // 3. Feedback de Sucesso (fecha sozinho em 2s)
+      await Swal.fire({
+        title: 'Médico excluído!',
+        text: 'O registro foi removido com sucesso. ✨',
+        icon: 'success',
+        confirmButtonColor: '#3b82f6',
+        timer: 2000,
+        showConfirmButton: false,
+      })
     } catch (error) {
-      alert('Não é possível excluir este médico. Verifique vínculos ativos.')
+      console.error('Erro ao excluir médico', error)
+
+      // 4. Feedback de Erro
+      Swal.fire({
+        title: 'Não foi possível excluir',
+        text: 'Verifique se este médico possui consultas ou agendas vinculadas antes de tentar novamente.',
+        icon: 'error',
+        confirmButtonColor: '#3b82f6',
+      })
     }
   }
 

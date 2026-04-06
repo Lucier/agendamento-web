@@ -56,6 +56,10 @@ export const Header = styled.header`
   border-radius: 0 0 0.75rem 0.75rem;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 
+  svg {
+    cursor: pointer;
+  }
+
   @media (min-width: ${theme.breakpoints.desktop}) {
     border-radius: 0;
     padding: 3rem 2rem;

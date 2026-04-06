@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { LuPencil, LuPlus, LuSearch, LuTrash2, LuUser } from 'react-icons/lu'
 import { useNavigate } from 'react-router-dom'
+import Swal from 'sweetalert2'
 import { usePatients } from '../../../hooks/usePatients.hook'
 import * as S from './style'
 
@@ -16,15 +17,56 @@ export default function PatientList() {
       patient.name.toLowerCase().includes(searchName.toLowerCase()) &&
       patient.sus_card.includes(searchSus_Card),
   )
-
   async function handleDelete(id: string) {
-    if (!confirm('Deseja excluir este paciente?')) return
+    // 1. Alerta de Confirmação
+    const result = await Swal.fire({
+      title: 'Excluir este paciente?',
+      text: 'Esta ação não poderá ser desfeita e os dados do paciente serão removidos.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444', // Vermelho para perigo
+      cancelButtonColor: '#94a3b8', // Cinza para cancelar
+      confirmButtonText: 'Sim, excluir',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true,
+      background: '#ffffff',
+      color: '#1e293b',
+    })
+
+    // Se o usuário desistir, interrompe a função
+    if (!result.isConfirmed) return
 
     try {
+      // 2. Feedback de carregamento durante a deleção
+      Swal.fire({
+        title: 'Excluindo paciente...',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading()
+        },
+      })
+
       await deletePatient(id)
-      alert('Paciente excluído com sucesso!')
+
+      // 3. Feedback de Sucesso
+      await Swal.fire({
+        title: 'Paciente excluído!',
+        text: 'O registro foi removido com sucesso.',
+        icon: 'success',
+        confirmButtonColor: '#3b82f6',
+        timer: 2000,
+        showConfirmButton: false,
+      })
     } catch (error) {
-      alert('Erro ao excluir. O paciente pode ter vínculos ativos.')
+      console.error('Erro ao excluir paciente', error)
+
+      // 4. Feedback de Erro
+      Swal.fire({
+        title: 'Não foi possível excluir',
+        text: 'Erro ao excluir. O paciente pode ter vínculos ativos ou problemas de conexão.',
+        icon: 'error',
+        confirmButtonColor: '#3b82f6',
+      })
     }
   }
 
