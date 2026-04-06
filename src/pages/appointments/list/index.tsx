@@ -83,14 +83,60 @@ export function AppointmentList() {
   }
 
   const handleUpdateStatus = async (id: string, status: string) => {
+    // 1. Se for cancelamento, solicita confirmação
+    if (status === 'CANCELED') {
+      const result = await Swal.fire({
+        title: 'Confirmar cancelamento?',
+        text: 'Tem certeza que deseja cancelar esta consulta? Esta ação é irreversível.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#94a3b8',
+        confirmButtonText: 'Sim, cancelar',
+        cancelButtonText: 'Manter consulta',
+        reverseButtons: true,
+        background: '#ffffff',
+        color: '#1e293b',
+      })
+
+      // Se o usuário desistir do cancelamento, interrompe a função
+      if (!result.isConfirmed) return
+    }
+
     try {
+      // 2. Feedback de carregamento
+      Swal.fire({
+        title: 'Atualizando...',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading()
+        },
+      })
+
       await api.patch(`/appointments/${id}/status`, { status })
-      appointmentsQuery.refetch()
+
+      await appointmentsQuery.refetch()
+
+      // 3. Feedback de Sucesso
+      await Swal.fire({
+        title: 'Status Atualizado!',
+        icon: 'success',
+        confirmButtonColor: '#3b82f6',
+        timer: 1000,
+        showConfirmButton: false,
+      })
     } catch (error) {
-      alert('Erro ao atualizar status')
+      console.error('Erro ao atualizar status', error)
+
+      // 4. Feedback de Erro
+      Swal.fire({
+        title: 'Erro na atualização',
+        text: 'Não foi possível alterar o status da consulta. Tente novamente.',
+        icon: 'error',
+        confirmButtonColor: '#3b82f6',
+      })
     }
   }
-
   if (appointmentsQuery.isLoading)
     return (
       <S.Container>
